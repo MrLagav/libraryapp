@@ -65,20 +65,21 @@ class BookController
 
     public function addAction()
     {
-        $errorMessage = null;
-
         $this->createForm();
+
         $book = $this->gettingBook();
 
-        if ($book != null) {
+        $errorMessage = $this->validation($book);
 
-            $errorMessage = $this->validation($book);
+        echo $errorMessage;
 
             if ($errorMessage = null) {
+
                 $this->insertBook($book);
+                echo "testing";
 
             }
-        }
+        echo $errorMessage;
     }
 
     public function createForm()
@@ -126,29 +127,33 @@ class BookController
 
     public function validation($book)
 
-
     {
-        $errorMessage = null;
+        if ($book != null) {
 
-        if ( is_array($book) == true ) {
-            foreach ($book as $key => $value) {
+            $errorMessage = null;
 
-                if (empty($book[$key]) == true) {
+            if (is_array($book) == true) {
+                foreach ($book as $key => $value) {
 
-                    $errorMessage .= '<br /> The <b>' . $key . '</b> is empty.';
+                    if (empty($book[$key]) == true) {
+
+                        $errorMessage .= '<br /> The <b>' . $key . '</b> is empty.';
+                    }
+
                 }
+            }
+
+            if (is_numeric($book['ean']) == false) {
+
+                $errorMessage .= '<br /> The <b>ean</b> should be an integer';
 
             }
-        }
+            if ($errorMessage != null) {
+                echo '<b>ERROR: </b>';
+            }
 
-        if (is_numeric($book['ean']) == false) {
-
-            $errorMessage .= '<br /> The <b>ean</b> should be an integer';
-
-        }
-        if ($errorMessage!=null)
-        {
-            echo '<b>ERROR: </b>' . $errorMessage . '<br /> <b> Fill with the correct information </b>';
+        } else {
+            $errorMessage = 'Fill the form';
         }
 
         return $errorMessage;
@@ -158,22 +163,29 @@ class BookController
 
     public function insertBook ($book)
     {
-
+        $registry = framework\Registry::getInstance();
+        $conn = $registry->getParam('db');
+        echo $conn;
             try {
 
-                foreach ($book as $key->value)
+
 
                 $sql = " INSERT INTO libraryBook (ean, title, author, updated_date)
                     VALUES ('" . $book['ean'] ."','" . $book['title'] . "', '" . $book['author'] . "', 'DATETIME')";
 
                 $conn->exec($sql);
+
+                echo "LOLOK";
+
+
                 header("Location:execute.php");
+
             }
             catch (PDOException $e) {
+
                 echo "Wait!!! :( Connection failed: " . $e->getMessage();
+
             }
-
-
 
 
     }
