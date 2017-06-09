@@ -51,13 +51,11 @@ class BookController
                             <button type="button" class="btn btn-warning">Edit</button>
                             <button type="button" class="btn btn-danger">Delete</button>
                         </td>
-                    </tr>
-                </tbody>
-            </table>
-          ';
+                    </tr>';
+
             }
-            echo '</tbody>
-        </table>';
+            echo '  </tbody>
+            </table>';
         } else {
             echo 'no data found.';
         }
@@ -71,15 +69,11 @@ class BookController
 
         $errorMessage = $this->validation($book);
 
-        echo $errorMessage;
+        if (empty($errorMessage) === true) {
+            echo 'TESLA';
+            $this->insertBook($book);
 
-            if ($errorMessage = null) {
-
-                $this->insertBook($book);
-                echo "testing";
-
-            }
-        echo $errorMessage;
+        }
     }
 
     public function createForm()
@@ -117,10 +111,13 @@ class BookController
 
                 'author' => $_POST['author'],
 
-                'ean' => $_POST['ean']
+                'ean' => $_POST['ean'],
+
+                'datetime' => date("Y-m-d H:i:s")
             );
 
         }
+
     return $book;
 
     }
@@ -128,7 +125,7 @@ class BookController
     public function validation($book)
 
     {
-        if ($book != null) {
+        if (empty($book) == false) {
 
             $errorMessage = null;
 
@@ -139,7 +136,6 @@ class BookController
 
                         $errorMessage .= '<br /> The <b>' . $key . '</b> is empty.';
                     }
-
                 }
             }
 
@@ -148,13 +144,15 @@ class BookController
                 $errorMessage .= '<br /> The <b>ean</b> should be an integer';
 
             }
-            if ($errorMessage != null) {
+            if (empty($errorMessage) == false) {
                 echo '<b>ERROR: </b>';
             }
 
         } else {
-            $errorMessage = 'Fill the form';
+            $errorMessage = '<b>Please enter the details </b>';
         }
+
+        echo $errorMessage;
 
         return $errorMessage;
 
@@ -165,20 +163,14 @@ class BookController
     {
         $registry = framework\Registry::getInstance();
         $conn = $registry->getParam('db');
-        echo $conn;
+
             try {
 
-
-
                 $sql = " INSERT INTO libraryBook (ean, title, author, updated_date)
-                    VALUES ('" . $book['ean'] ."','" . $book['title'] . "', '" . $book['author'] . "', 'DATETIME')";
+                    VALUES ('" . $book['ean'] ."','" . $book['title'] . "', '" . $book['author'] . "', '". $book['datetime'] ."')";
 
                 $conn->exec($sql);
 
-                echo "LOLOK";
-
-
-                header("Location:execute.php");
 
             }
             catch (PDOException $e) {

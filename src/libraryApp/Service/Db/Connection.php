@@ -14,7 +14,7 @@ class Connection
 {
     static public function connection ()
     {
-
+        //$connectionDetail = $this ->parseFile();
         $mysql_servername = "localhost";
         $mysql_username   = "root";
         $mysql_password   = "";
@@ -36,4 +36,9 @@ class Connection
                   <strong>You are not connected</strong> to the database. <br /> <strong>See Error: </strong>' . $error->getMessage() . '</div>';
         }
     }
+
+    private function parseFile () {
+
+    }
+
 }
