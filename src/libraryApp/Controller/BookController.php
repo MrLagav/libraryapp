@@ -164,7 +164,7 @@ class BookController
                 foreach ($book as $key->value)
 
                 $sql = " INSERT INTO libraryBook (ean, title, author, updated_date)
-                    VALUES ('" . $book['ean'] ."','" . $book['title'] . "', '" . $book['author'] . "', DATETIME;
+                    VALUES ('" . $book['ean'] ."','" . $book['title'] . "', '" . $book['author'] . "', 'DATETIME')";
 
                 $conn->exec($sql);
                 header("Location:execute.php");
