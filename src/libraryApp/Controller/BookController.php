@@ -38,6 +38,7 @@ class BookController
                 </tr>
             </thead>
             <tbody>';
+
             $rows = $results->fetchAll();
             foreach ($rows as $row) {
                 echo '
@@ -47,9 +48,9 @@ class BookController
                         <td>' . $row["ean"] . '</td>
                         <td>' . $row["updated_date"] . '</td>
                         <td>
-                            <button type="button" class="btn btn-primary" href="?action=view">View</button>
-                            <button type="button" class="btn btn-warning">Edit</button>
-                            <button type="button" class="btn btn-danger">Delete</button>
+                            <button type="button" class="btn btn-primary" href="?action=detail&?id='. $row['ean'] . '">View</button>
+                            <button type="button" class="btn btn-warning" href="?action=edit">Edit</button>
+                            <button type="button" class="btn btn-danger" href="?action=delete">Delete</button>
                         </td>
                     </tr>';
 
@@ -57,7 +58,7 @@ class BookController
             echo '  </tbody>
             </table>';
         } else {
-            echo 'no data found.';
+            echo '<b> No data found.</b>';
         }
     }
 
@@ -70,7 +71,7 @@ class BookController
         $errorMessage = $this->validation($book);
 
         if (empty($errorMessage) === true) {
-            echo 'TESLA';
+
             $this->insertBook($book);
 
         }
