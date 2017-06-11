@@ -10,13 +10,12 @@ namespace framework;
 
 class Dispatcher
 {
-    private $controller = null;
-    private $action = null;
 
-    public function __construct($controller = null, $action = null)
+    public function __construct($controller = null, $action = null, $id = null)
     {
         $this->controller = $controller;
         $this->action = $action;
+        $this->id = $id;
     }
 
     /*
@@ -29,22 +28,24 @@ class Dispatcher
     {
         $controllerName = $this->controller;
         $actionName = $this->action;
+        $idValue = $this->id;
+
         $validationController = $this->controllerVerify($controllerName);
         $validationAction = $this->actionVerify($controllerName, $actionName);
 
-        if ($validationController == 1)
-        {
-         if ($validationAction == 1)
-         {
-             $classControllerName = 'libraryApp\\Controller\\' . $controllerName;
-             $controller = new $classControllerName;
-             $controller->$actionName();
+        if ($validationController == 1) {
 
-         } else {
-             //echo "action does not exists";
-             include "view/homepage.php";
+            if ($validationAction == 1) {
 
-         }
+                $classControllerName = 'libraryApp\\Controller\\' . $controllerName;
+                $controller = new $classControllerName;
+
+                $controller->$actionName($idValue);
+
+            } else {
+                //echo "action does not exists";
+                include "view/homepage.php";
+            }
 
         } else {
             //echo "Controller does not exists";
@@ -80,7 +81,6 @@ class Dispatcher
 
         return $existsAction;
     }
-
 
 
 

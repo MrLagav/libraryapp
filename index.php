@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
  /*Autoloader includes the files of unknown called classes. */
 
     spl_autoload_register(function ($className) {
@@ -46,7 +48,9 @@
 <div id="content">
     <?php
 
-    //GET controller and action from URL
+    //GET controller, action, id from URL
+
+
     if (!empty ($_GET['controller']))
     {
         $controller = $_GET['controller'];
@@ -56,13 +60,26 @@
         {
             $action = $_GET ['action'];
 
+            if(!empty($_GET['id']))
+
+            {
+                $id = $_GET ['id'];
+
+            } else {
+
+                $id = null;
+            }
+
         } else {
 
             $action = null;
+            $id = null;
         }
     } else {
+
         $controller = null;
         $action = null;
+        $id = null;
     }
 
 
@@ -76,14 +93,14 @@
 
     //Calls the dispatch to call the actions in the controller.
 
-    $dispatch = new \framework\Dispatcher($controller, $action);
+    $dispatch = new \framework\Dispatcher($controller, $action, $id);
     $dispatch->dispatch();
     ?>
 </div>
 
 <footer>
     <?php
-    include ("/Users/n.braveen/Sites/libraryapp/view/footer.php")
+    include ("view/footer.php")
     ?>
 </footer>
 </body>
