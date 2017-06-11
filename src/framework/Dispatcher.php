@@ -58,6 +58,10 @@ class Dispatcher
      * controllerVerify checks if the controller file exists.
      * It returns a bool
      */
+    public static function routedDispatch ($controller, $action)
+    {
+        header('Location: index.php?controller='. $controller . '&action='. $action);
+    }
 
     private function controllerVerify ($controller)
     {

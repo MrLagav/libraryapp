@@ -49,7 +49,7 @@ class BookController
                         <td>
                             <a class="btn btn-primary" href="?controller=bookcontroller&action=viewAction&id='. $row["ean"] . '">View</a>
                             <a class="btn btn-warning" href="?controller=bookcontroller&action=editAction&id='. $row["ean"] . '">Edit</a>
-                            <a class="btn btn-danger" href="?action=delete">Delete</a>
+                            <a class="btn btn-danger" href="?controller=bookcontroller&action=deleteAction&id='. $row["ean"] . '">Delete</a>
                         </td>
                     </tr>';
 
@@ -74,7 +74,8 @@ class BookController
         if (empty($errorMessage) === true) {
 
             $this->insertBook($book);
-            header('Location: index.php?controller=bookcontroller&action=listaction');
+
+            framework\Dispatcher::routedDispatch(bookcontroller,listaction);
         }
     }
 
@@ -136,8 +137,27 @@ class BookController
         if (empty($errorMessage) === true) {
 
             $this->updateBook($id,$book);
-            header('Location: index.php?controller=bookcontroller&action=listaction');
+
+            framework\Dispatcher::routedDispatch(bookcontroller,listaction);
         }
+    }
+
+    public function deleteAction ($id)
+    {
+        $registry = framework\Registry::getInstance();
+        $conn = $registry->getParam('db');
+
+        try {
+            $sql = sprintf(
+                "DELETE FROM libraryBook WHERE ean=%s",
+                $id
+            );
+            $conn->exec($sql);
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+
+        framework\Dispatcher::routedDispatch(bookcontroller, listaction);
     }
 
     private function createForm($book)
