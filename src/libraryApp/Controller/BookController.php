@@ -14,7 +14,6 @@ use framework;
  */
 class BookController
 {
-
     public function listAction()
     {
         $registry = framework\Registry::getInstance();
@@ -48,9 +47,9 @@ class BookController
                         <td>' . $row["ean"] . '</td>
                         <td>' . $row["updated_date"] . '</td>
                         <td>
-                            <button type="button" class="btn btn-primary" href="?action=detail&?id='. $row['ean'] . '">View</button>
-                            <button type="button" class="btn btn-warning" href="?action=edit">Edit</button>
-                            <button type="button" class="btn btn-danger" href="?action=delete">Delete</button>
+                            <a class="btn btn-primary" href="?controller=bookcontroller&action=viewAction&id='. $row["ean"] . '">View</a>
+                            <a class="btn btn-warning" href="?controller=bookcontroller&action=editAction&id='. $row["ean"] . '">Edit</a>
+                            <a class="btn btn-danger" href="?action=delete">Delete</a>
                         </td>
                     </tr>';
 
@@ -64,7 +63,9 @@ class BookController
 
     public function addAction()
     {
-        $this->createForm();
+        $book = null;
+
+        $this->createForm($book);
 
         $book = $this->gettingBook();
 
@@ -73,26 +74,89 @@ class BookController
         if (empty($errorMessage) === true) {
 
             $this->insertBook($book);
-
+            header('Location: index.php?controller=bookcontroller&action=listaction');
         }
     }
 
-    public function createForm()
+    public function viewAction($id)
     {
+        $existId = $this->verifyID($id);
+
+        if ($existId == 1)
+        {
+            $registry = framework\Registry::getInstance();
+            $conn = $registry->getParam('db');
+
+            $sql = " SELECT * FROM libraryBook";
+
+            $results = $conn->prepare($sql);
+            $results->execute();
+
+            $rows = $results->fetchAll();
+
+            foreach ($rows as $row) {
+
+                if ($row['ean'] === $id) {
+
+                    echo ' 
+                            
+                            
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h2 class="page-header">' . $row['title'] . '</h2>
+                                </div>
+                                <div class="panel-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">Author: ' . $row['author'] . '</li>
+                                        <li class="list-group-item">ISBN: ' . $row['ean'] . '</li>
+                                        <li class="list-group-item">Updated on: ' . $row['updated_date'] . '</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            ';
+                    break;
+                }
+            }
+        } else {
+            echo 'Page does not exists.';
+        }
+
+    }
+
+    public function editAction ($id)
+    {
+        $book = $this->getBookById($id);
+
+        $this->createForm($book);
+
+        $book = $this->gettingBook();
+
+        $errorMessage = $this->validation($book);
+
+        if (empty($errorMessage) === true) {
+
+            $this->updateBook($id,$book);
+            header('Location: index.php?controller=bookcontroller&action=listaction');
+        }
+    }
+
+    private function createForm($book)
+    {
+
         echo '
 
     <form method="post" action="#">
         <div class="form-group">
             <label>Book Title</label>
-            <input name="title"type="text" class="form-control" placeholder="Enter the book title">
+            <input name="title"type="text" class="form-control" placeholder="Enter the book title" value="' . $book["title"] . '">
         </div>
         <div class="form-group">
             <label>Book Author</label>
-            <input name="author" type="text" class="form-control"  placeholder="Enter the book author">
+            <input name="author" type="text" class="form-control"  placeholder="Enter the book author" value="' . $book["author"] . '">
         </div>
         <div class="form-group">
             <label>Book EAN</label>
-            <input name="ean" type="text" class="form-control"  placeholder="Enter the book EAN">
+            <input name="ean" type="text" class="form-control"  placeholder="Enter the book EAN" value="' . $book["ean"] . '">
             <small class="form-text text-muted">You can find it over the barcode of the book</small>
         </div>
             <button name="submit" value="send" type="submit" class="btn btn-primary">Submit</button>
@@ -101,7 +165,7 @@ class BookController
 ';
     }
 
-    public function gettingBook()
+    private function gettingBook()
     {
         $book = null;
 
@@ -123,7 +187,7 @@ class BookController
 
     }
 
-    public function validation($book)
+    private function validation($book)
 
     {
         if (empty($book) == false) {
@@ -150,7 +214,7 @@ class BookController
             }
 
         } else {
-            $errorMessage = '<b>Please enter the details </b>';
+            $errorMessage = '<b>Please enter the values and submit </b>';
         }
 
         echo $errorMessage;
@@ -160,7 +224,7 @@ class BookController
 
     }
 
-    public function insertBook ($book)
+    private function insertBook ($book)
     {
         $registry = framework\Registry::getInstance();
         $conn = $registry->getParam('db');
@@ -182,6 +246,80 @@ class BookController
 
 
     }
+
+    private function verifyID ($id)
+    {
+        $registry = framework\Registry::getInstance();
+        $conn = $registry->getParam('db');
+
+        $sql = " SELECT ean, title, author, updated_date FROM libraryBook";
+        $results = $conn->prepare($sql);
+        $results->execute();
+
+        $rows = $results->fetchAll();
+
+        $existId = null;
+        foreach ($rows as $row) {
+
+                if ($row['ean'] === $id) {
+                $existId = 1;
+                break;
+            }
+        }
+        return $existId;
+    }
+
+    private function getBookById ($id) {
+        $registry = framework\Registry::getInstance();
+        $conn = $registry->getParam('db');
+
+        $sql = " SELECT ean, title, author, updated_date FROM libraryBook";
+        $results = $conn->prepare($sql);
+        $results-> execute();
+        $rows = $results->fetchAll();
+
+        foreach ($rows as $row)
+        {
+            $book = null;
+            if ($row['ean']==$id)
+
+            {
+                $book = array(
+                    'title' =>$row['title'],
+                    'author'=>$row['author'],
+                    'ean' =>$row['ean'],
+                    'datetime' =>$row['updated_date']
+                );
+
+                break;
+            }
+
+        }
+        return $book;
+    }
+
+    private function updateBook ($id, $book)
+    {
+
+        $registry = framework\Registry::getInstance();
+        $conn = $registry->getParam('db');
+
+        try {
+            $sql = sprintf(
+                "UPDATE libraryBook SET ean='%s', title='%s', author='%s', updated_date='%s' WHERE ean=%s",
+                $book['ean'],
+                $book['title'],
+                $book['author'],
+                $book['datetime'],
+                $id
+            );
+            $conn->exec($sql);
+        } catch (PDOException $e) {
+            echo "Wait!!! :( Connection failed: " . $e->getMessage();
+        }
+
+    }
+
 }
 
 ?>
