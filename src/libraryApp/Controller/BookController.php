@@ -298,8 +298,6 @@ class BookController
         return $book;
     }
 
-
-
     private function updateBook ($id, $book)
     {
 
